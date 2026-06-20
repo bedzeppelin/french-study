@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>French Study Interactive ・ FSF1D</title>
+<style>
+  :root{
+    --bg:#0b0b0d; --panel:#15151a; --panel2:#1b1b21; --line:#2a2a32;
+    --ink:#f3f3f5; --muted:#9a9aa6; --red:#ff2e3f; --red-soft:#3a1115;
+    --gold:#ffd23f; --gold-soft:#332b0f;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; color:var(--ink); background:var(--bg);
+    font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif; min-height:100vh;
+    background-image:radial-gradient(circle at 12% -10%, #1a1a22 0%, transparent 45%);}
+  .lovelo{font-family:"Arial Black",Impact,"Trebuchet MS",sans-serif; text-transform:uppercase;
+    letter-spacing:3px; font-weight:900;}
+  .streak{position:fixed; top:-30vh; width:2px; height:130vh; z-index:0; opacity:.06; pointer-events:none; animation:drift linear infinite;}
+  @keyframes drift{from{transform:translateY(-10vh);}to{transform:translateY(20vh);}}
+  header{position:relative; z-index:2; text-align:center; padding:34px 14px 6px;}
+  header h1{margin:0; font-size:clamp(28px,6vw,52px); color:var(--ink);}
+  header h1 .dot{color:var(--red);}
+  header p{margin:8px 0 0; color:var(--gold); font-weight:bold; letter-spacing:2px; font-size:13px;}
+  .rule{height:3px; width:90px; margin:14px auto 0; background:linear-gradient(90deg,var(--red),var(--gold));}
+  .wrap{max-width:940px; margin:0 auto; padding:0 14px 70px; position:relative; z-index:2;}
+  nav.tabs{display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:20px 0;}
+  nav.tabs button{font-family:"Arial Black",sans-serif; text-transform:uppercase; letter-spacing:1px;
+    border:1px solid var(--line); background:var(--panel); color:var(--muted); cursor:pointer;
+    padding:9px 12px; border-radius:10px; font-size:11.5px; transition:.15s;}
+  nav.tabs button:hover{color:var(--ink); border-color:var(--gold);}
+  nav.tabs button.active{background:var(--red); color:#fff; border-color:var(--red);}
+  section.panel{display:none; background:var(--panel); border:1px solid var(--line); border-radius:16px;
+    padding:24px; box-shadow:0 18px 50px rgba(0,0,0,.5); animation:pop .2s ease;}
+  section.panel.active{display:block;}
+  @keyframes pop{from{opacity:0; transform:translateY(6px);}to{opacity:1; transform:none;}}
+  section.panel h2{margin:0 0 4px; font-size:23px;}
+  section.panel h2 .tag{color:var(--red);}
+  .count{color:var(--muted); font-size:13px; margin-bottom:12px;}
+  .hint{background:var(--panel2); border-left:3px solid var(--gold); padding:11px 14px; border-radius:8px;
+    margin:0 0 18px; font-size:14.5px; color:#dcdce2; line-height:1.55;}
+  .hint b{color:var(--gold);}
+  #accentBar{position:sticky; top:0; z-index:5; display:flex; flex-wrap:wrap; gap:6px;
+    background:rgba(10,10,12,.92); backdrop-filter:blur(6px); border-bottom:1px solid var(--line);
+    padding:10px; border-radius:0 0 12px 12px; margin-bottom:14px;}
+  #accentBar .lbl{color:var(--gold); font-weight:bold; align-self:center; margin-right:4px; font-size:13px; letter-spacing:1px;}
+  #accentBar button{min-width:38px; height:38px; border:1px solid var(--line); border-radius:8px; cursor:pointer;
+    font-size:18px; font-weight:bold; background:var(--panel2); color:var(--ink); transition:.12s;}
+  #accentBar button:hover{background:var(--gold); color:#000; border-color:var(--gold);}
+  .q{background:var(--panel2); border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin:12px 0; transition:.15s;}
+  .q .prompt{font-weight:bold; margin-bottom:8px; line-height:1.5;}
+  .q .sub{font-size:12.5px; color:var(--muted); margin-bottom:8px;}
+  .q label{display:block; margin:5px 0; cursor:pointer; color:#dcdce2;}
+  .q label:hover{color:var(--ink);}
+  input.fr, textarea.fr, select.fr{font-size:16px; padding:9px 11px; border:1px solid var(--line); border-radius:9px;
+    font-family:inherit; width:100%; max-width:460px; background:#0e0e12; color:var(--ink);}
+  input.fr:focus,textarea.fr:focus,select.fr:focus{outline:none; border-color:var(--gold);}
+  .matchrow{display:flex; gap:12px; align-items:center; flex-wrap:wrap;}
+  .matchrow .fr-term{font-weight:bold; min-width:150px; color:var(--gold);}
+  .q.correct{border-color:var(--gold); background:var(--gold-soft);}
+  .q.wrong{border-color:var(--red); background:var(--red-soft);}
+  .fb{margin-top:8px; font-weight:bold; font-size:14px;}
+  .fb.ok{color:var(--gold);} .fb.no{color:var(--red);}
+  button.action{font-family:"Arial Black",sans-serif; text-transform:uppercase; letter-spacing:1px;
+    border:none; border-radius:10px; cursor:pointer; padding:13px 20px; color:#fff; font-size:14px;
+    background:var(--red); transition:.12s; box-shadow:0 4px 0 #7a0c14;}
+  button.action:hover{filter:brightness(1.08);}
+  button.action:active{transform:translateY(4px); box-shadow:0 0 0 #7a0c14;}
+  button.speak{background:transparent; border:1px solid var(--gold); color:var(--gold);
+    padding:8px 13px; border-radius:8px; font-family:"Arial Black",sans-serif; cursor:pointer; font-size:12px; letter-spacing:1px;}
+  button.speak:hover{background:var(--gold); color:#000;}
+  .scorebox{margin-top:16px; font-family:"Arial Black",sans-serif; font-size:17px; text-align:center;
+    padding:13px; border-radius:10px; background:var(--panel2); border:1px solid var(--line); color:var(--ink);}
+  .pill{display:inline-block; background:var(--gold); color:#000; border-radius:14px; padding:2px 11px; font-size:12px; font-weight:bold; margin-left:6px;}
+  .reading{background:var(--panel2); border:1px solid var(--gold); border-radius:12px; padding:16px; line-height:1.8; color:#ececf0;}
+  .passlabel{font-family:"Arial Black",sans-serif; letter-spacing:1px; color:var(--red); font-size:13px; margin:16px 0 6px;}
+  footer{text-align:center; color:var(--muted); font-size:13px; padding:22px;}
+  footer .accentline{height:2px; width:60px; background:linear-gradient(90deg,var(--red),var(--gold)); margin:0 auto 12px;}
+</style>
+</head>
+<body>
+<header>
+  <h1 class="lovelo">French Study Interactive<span class="dot">.</span></h1>
+  <p class="lovelo">FSF1D ・ Grade 9 Core French ・ Exam Review</p>
+  <div class="rule"></div>
+</header>
+
+<div class="wrap">
+  <div id="accentBar">
+    <span class="lbl">ACCENTS</span>
+    <button data-ch="é">é</button><button data-ch="è">è</button><button data-ch="ê">ê</button>
+    <button data-ch="ë">ë</button><button data-ch="à">à</button><button data-ch="â">â</button>
+    <button data-ch="î">î</button><button data-ch="ï">ï</button><button data-ch="ô">ô</button>
+    <button data-ch="û">û</button><button data-ch="ù">ù</button><button data-ch="ç">ç</button>
+    <button data-ch="œ">œ</button><button data-ch="«">«</button><button data-ch="»">»</button>
+  </div>
+
+  <nav class="tabs" id="tabs"></nav>
+  <div id="panels"></div>
+</div>
+
+<footer><div class="accentline"></div>Bonne chance! Made for FSF1D exam review ・ runs 100% offline in your browser.</footer>
+
+<script>
+/* subtle accent streaks */
+(function(){const cols=["#ff2e3f","#ffd23f","#ffffff"];for(let i=0;i<7;i++){const s=document.createElement("div");s.className="streak";s.style.left=(8+i*14)+"vw";s.style.background="linear-gradient(180deg,transparent,"+cols[i%3]+",transparent)";s.style.animationDuration=(9+Math.random()*8)+"s";s.style.animationDelay=(-Math.random()*8)+"s";document.body.appendChild(s);}})();
+
+/* helpers */
+function norm(s){return (s||"").trim().toLowerCase().replace(/\s+/g," ").replace(/[.!?]+$/,"").replace(/’/g,"'");}
+function speak(text){
+  if(!("speechSynthesis"in window)){alert("Your browser doesn't support speech. Try Chrome or Edge.");return;}
+  window.speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);u.lang="fr-FR";u.rate=.9;
+  const v=window.speechSynthesis.getVoices().find(v=>/fr/i.test(v.lang));if(v)u.voice=v;
+  window.speechSynthesis.speak(u);
+}
+if("speechSynthesis"in window){window.speechSynthesis.onvoiceschanged=()=>{};window.speechSynthesis.getVoices();}
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+/* reading passages */
+const READING_A="Salut! Je m'appelle Léa. Le week-end dernier, j'ai mangé une pizza délicieuse avec ma famille. Mon frère a regardé un film amusant, mais moi, je n'ai pas aimé le film. Demain, j'irai au cinéma avec mes amies. Nous mangerons du popcorn salé!";
+const READING_B="Bonjour, je m'appelle Marc. Chaque samedi, je me lève à huit heures et je joue au football avec mes amis. Samedi dernier, je suis allé à la maison de mon ami Paul. Plus tard, je serai professeur car j'adore les enfants.";
+const READING_C="Bonjour! Je m'appelle Sophie. J'adore la cuisine italienne. Les pâtes sont délicieuses et la pizza est mon plat préféré. Hier soir, ma mère a préparé une salade fraîche. Ce week-end, nous irons au restaurant pour célébrer mon anniversaire.";
+
+/* ============ QUESTION DATA — each set >= 20 ============ */
+const SETS={
+ present:[
+  {prompt:"Je ___ (parler) français.",type:"text",ans:["parle"]},
+  {prompt:"Tu ___ (danser) bien.",type:"text",ans:["danses"]},
+  {prompt:"Nous ___ (manger) une pizza.",type:"text",ans:["mangeons"]},
+  {prompt:"Vous ___ (regarder) un film.",type:"text",ans:["regardez"]},
+  {prompt:"Ils ___ (jouer) au foot.",type:"text",ans:["jouent"]},
+  {prompt:"Elle ___ (chanter) une chanson.",type:"text",ans:["chante"]},
+  {prompt:"Je ___ (finir) mes devoirs.",type:"text",ans:["finis"]},
+  {prompt:"Elle ___ (choisir) un livre.",type:"text",ans:["choisit"]},
+  {prompt:"Nous ___ (finir) le test.",type:"text",ans:["finissons"]},
+  {prompt:"Ils ___ (choisir) un film.",type:"text",ans:["choisissent"]},
+  {prompt:"Je ___ (vendre) mon vélo.",type:"text",ans:["vends"]},
+  {prompt:"Il ___ (vendre) des billets.",type:"text",ans:["vend"]},
+  {prompt:"Nous ___ (répondre) à la question.",type:"text",ans:["répondons"]},
+  {prompt:"Je ___ (être) content.",type:"text",ans:["suis"]},
+  {prompt:"Vous ___ (être) gentils.",type:"text",ans:["êtes"]},
+  {prompt:"Tu ___ (avoir) un chien.",type:"text",ans:["as"]},
+  {prompt:"Ils ___ (avoir) faim.",type:"text",ans:["ont"]},
+  {prompt:"Nous ___ (aller) à l'école.",type:"text",ans:["allons"]},
+  {prompt:"Vous ___ (faire) du sport.",type:"text",ans:["faites"]},
+  {prompt:"Je ___ (vouloir) une glace.",type:"text",ans:["veux"]},
+  {prompt:"Il ___ (pouvoir) nager.",type:"text",ans:["peut"]},
+  {prompt:"Je me ___ (se brosser) les dents.",type:"text",ans:["brosse"]},
+ ],
+ passe:[
+  {prompt:"Write fully: « Elle (parler) français. »",type:"text",ans:["elle a parlé français"]},
+  {prompt:"Write fully: « Nous (jouer) au foot. »",type:"text",ans:["nous avons joué au foot"]},
+  {prompt:"Write fully: « Tu (manger) une pomme. »",type:"text",ans:["tu as mangé une pomme"]},
+  {prompt:"Write fully: « J' (regarder) un film. »",type:"text",ans:["j'ai regardé un film"]},
+  {prompt:"Write fully: « Ils (finir) le test. »",type:"text",ans:["ils ont fini le test"]},
+  {prompt:"Write fully: « Vous (choisir) un livre. »",type:"text",ans:["vous avez choisi un livre"]},
+  {prompt:"Write fully: « Je (vendre) mon vélo. »",type:"text",ans:["j'ai vendu mon vélo"]},
+  {prompt:"Write fully: « Elle (répondre) à la question. »",type:"text",ans:["elle a répondu à la question"]},
+  {prompt:"Write fully: « Nous (faire) du sport. »",type:"text",ans:["nous avons fait du sport"]},
+  {prompt:"Past participle of « manger »?",type:"text",ans:["mangé"]},
+  {prompt:"Past participle of « finir »?",type:"text",ans:["fini"]},
+  {prompt:"Past participle of « vendre »?",type:"text",ans:["vendu"]},
+  {prompt:"Past participle of « choisir »?",type:"text",ans:["choisi"]},
+  {prompt:"Past participle of « regarder »?",type:"text",ans:["regardé"]},
+  {prompt:"Past participle of « répondre »?",type:"text",ans:["répondu"]},
+  {prompt:"Past participle of « faire »?",type:"text",ans:["fait"]},
+  {prompt:"Past participle of « avoir »?",type:"text",ans:["eu"]},
+  {prompt:"The passé composé = subject + ___ + past participle.",type:"choice",opts:["adjective","helper verb (avoir/être)","preposition","article"],correct:1},
+  {prompt:"Which helper verb do MOST verbs use?",type:"choice",opts:["être","aller","avoir","faire"],correct:2},
+  {prompt:"Which sentence is in the passé composé?",type:"choice",opts:["Je mange","Je mangerai","J'ai mangé","Je mangeais"],correct:2},
+  {prompt:"Complete: « Fatima ___ mangé deux pizzas. »",type:"choice",opts:["a","est","as","ont"],correct:0},
+  {prompt:"Complete: « Nous ___ joué au parc. »",type:"choice",opts:["a","as","avons","ont"],correct:2},
+ ],
+ futur:[
+  {prompt:"Write fully (futur): « je (parler) »",type:"text",ans:["je parlerai","parlerai"]},
+  {prompt:"Write fully (futur): « tu (parler) »",type:"text",ans:["tu parleras","parleras"]},
+  {prompt:"Write fully (futur): « il (manger) »",type:"text",ans:["il mangera","mangera"]},
+  {prompt:"Write fully (futur): « nous (danser) »",type:"text",ans:["nous danserons","danserons"]},
+  {prompt:"Write fully (futur): « vous (regarder) »",type:"text",ans:["vous regarderez","regarderez"]},
+  {prompt:"Write fully (futur): « ils (jouer) »",type:"text",ans:["ils joueront","joueront"]},
+  {prompt:"Write fully (futur): « elle (finir) »",type:"text",ans:["elle finira","finira"]},
+  {prompt:"Futur ending for « je »?",type:"choice",opts:["-ai","-as","-a","-ons"],correct:0},
+  {prompt:"Futur ending for « ils/elles »?",type:"choice",opts:["-a","-ez","-ons","-ont"],correct:3},
+  {prompt:"Futur ending for « nous »?",type:"choice",opts:["-ai","-ons","-ez","-ont"],correct:1},
+  {prompt:"Futur of « aller » for « je » (stem ir-)",type:"text",ans:["j'irai","jirai","je irai","irai"]},
+  {prompt:"Futur of « aller » for « nous »",type:"text",ans:["nous irons","irons"]},
+  {prompt:"Futur of « être » for « je » (stem ser-)",type:"text",ans:["je serai","serai"]},
+  {prompt:"Futur of « être » for « ils »",type:"text",ans:["ils seront","seront"]},
+  {prompt:"Futur of « avoir » for « elle » (stem aur-)",type:"text",ans:["elle aura","aura"]},
+  {prompt:"Futur of « faire » for « je » (stem fer-)",type:"text",ans:["je ferai","ferai"]},
+  {prompt:"Futur of « pouvoir » for « je » (stem pourr-)",type:"text",ans:["je pourrai","pourrai"]},
+  {prompt:"Special futur stem of « aller »?",type:"choice",opts:["all-","ir-","aller-","aur-"],correct:1},
+  {prompt:"Special futur stem of « faire »?",type:"choice",opts:["fais-","fer-","faire-","far-"],correct:1},
+  {prompt:"Special futur stem of « être »?",type:"choice",opts:["et-","ser-","aur-","ir-"],correct:1},
+  {prompt:"Special futur stem of « avoir »?",type:"choice",opts:["av-","aur-","ser-","aor-"],correct:1},
+  {prompt:"Write fully: « Demain, je (aller) à l'école. »",type:"text",ans:["demain, j'irai à l'école","demain j'irai à l'école","demain, jirai à lécole","demain j'irai à lécole"]},
+ ],
+ vander:[
+  {prompt:"Dr Mrs Vandertramp verbs use which helper?",type:"choice",opts:["avoir","être","faire","aller"],correct:1},
+  {prompt:"How many Vandertramp verbs are there?",type:"choice",opts:["6","12","16","20"],correct:2},
+  {prompt:"Write fully: « Il (aller) à Paris. »",type:"text",ans:["il est allé à paris"]},
+  {prompt:"Write fully (female): « Elle (arriver) à 7h. »",type:"text",ans:["elle est arrivée à 7h","elle est arrivée à 7 h"]},
+  {prompt:"Write fully (masc. plural): « Ils (aller) à l'école. »",type:"text",ans:["ils sont allés à l'école","ils sont allés à lécole"]},
+  {prompt:"Write fully (fem. plural): « Elles (arriver) à 2h. »",type:"text",ans:["elles sont arrivées à 2h","elles sont arrivées à 2 h"]},
+  {prompt:"Write fully: « Le chien (mourir). »",type:"text",ans:["le chien est mort"]},
+  {prompt:"Write fully (male): « Je (entrer) dans la maison. »",type:"text",ans:["je suis entré dans la maison"]},
+  {prompt:"Past participle of « aller »?",type:"text",ans:["allé"]},
+  {prompt:"Past participle of « venir »?",type:"text",ans:["venu"]},
+  {prompt:"Past participle of « mourir »?",type:"text",ans:["mort"]},
+  {prompt:"Past participle of « naître »?",type:"text",ans:["né"]},
+  {prompt:"Past participle of « partir »?",type:"text",ans:["parti"]},
+  {prompt:"Past participle of « devenir »?",type:"text",ans:["devenu"]},
+  {prompt:"« HeeJung est ___ en Corée. » (naître, female)",type:"text",ans:["née"]},
+  {prompt:"« Henry et Fred sont ___ » (aller, masc. plural)",type:"text",ans:["allés"]},
+  {prompt:"« Anna et Joanne sont ___ » (arriver, fem. plural)",type:"text",ans:["arrivées"]},
+  {prompt:"Which IS a Vandertramp (être) verb?",type:"choice",opts:["manger","aller","parler","finir"],correct:1},
+  {prompt:"Which is NOT a Vandertramp verb?",type:"choice",opts:["arriver","partir","manger","venir"],correct:2},
+  {prompt:"If the subject is female, add ___ to the participle.",type:"choice",opts:["-s","-e","-es","nothing"],correct:1},
+  {prompt:"If the subject is plural (masc.), add ___ to the participle.",type:"choice",opts:["-e","-s","-es","nothing"],correct:1},
+  {prompt:"« venir » means…",type:"choice",opts:["to leave","to come","to fall","to stay"],correct:1},
+ ],
+ match:[
+  {prompt:"parler",type:"match",ans:["to speak"]},
+  {prompt:"manger",type:"match",ans:["to eat"]},
+  {prompt:"finir",type:"match",ans:["to finish"]},
+  {prompt:"vendre",type:"match",ans:["to sell"]},
+  {prompt:"aller",type:"match",ans:["to go"]},
+  {prompt:"être",type:"match",ans:["to be"]},
+  {prompt:"avoir",type:"match",ans:["to have"]},
+  {prompt:"faire",type:"match",ans:["to do / make"]},
+  {prompt:"vouloir",type:"match",ans:["to want"]},
+  {prompt:"pouvoir",type:"match",ans:["to be able to"]},
+  {prompt:"venir",type:"match",ans:["to come"]},
+  {prompt:"mourir",type:"match",ans:["to die"]},
+  {prompt:"délicieux",type:"match",ans:["delicious"]},
+  {prompt:"épicé",type:"match",ans:["spicy"]},
+  {prompt:"sucré",type:"match",ans:["sweet"]},
+  {prompt:"salé",type:"match",ans:["salty"]},
+  {prompt:"croustillant",type:"match",ans:["crunchy / crispy"]},
+  {prompt:"amer",type:"match",ans:["bitter"]},
+  {prompt:"grand",type:"match",ans:["big / tall"]},
+  {prompt:"petit",type:"match",ans:["small"]},
+  {prompt:"beau",type:"match",ans:["beautiful"]},
+  {prompt:"vieux",type:"match",ans:["old"]},
+ ],
+ fix:[
+  {prompt:"Fix it: « Je parle pas italien. »",type:"text",ans:["je ne parle pas italien"]},
+  {prompt:"Fix it: « Nous mange une pizza. »",type:"text",ans:["nous mangeons une pizza"]},
+  {prompt:"Fix it: « Elle a allé à Paris. »",type:"text",ans:["elle est allée à paris"]},
+  {prompt:"Fix it: « Je ai faim. »",type:"text",ans:["j'ai faim"]},
+  {prompt:"Fix it: « Vous etes gentils. »",type:"text",ans:["vous êtes gentils"]},
+  {prompt:"Fix it: « Une maison grand. »",type:"text",ans:["une maison grande"]},
+  {prompt:"Fix it: « Des chiens intelligent. »",type:"text",ans:["des chiens intelligents"]},
+  {prompt:"Fix it: « Il va à le supermarché. »",type:"text",ans:["il va au supermarché"]},
+  {prompt:"Fix it: « Elle retourne de le parc. »",type:"text",ans:["elle retourne du parc"]},
+  {prompt:"Fix it: « Tu a mangé hier. »",type:"text",ans:["tu as mangé hier"]},
+  {prompt:"Fix it: « Ils ont allés au cinéma. »",type:"text",ans:["ils sont allés au cinéma"]},
+  {prompt:"Fix it: « Je me brosse pas les dents. »",type:"text",ans:["je ne me brosse pas les dents"]},
+  {prompt:"Fix it: « Elle est arrivé à 7h. » (female)",type:"text",ans:["elle est arrivée à 7h","elle est arrivée à 7 h"]},
+  {prompt:"Fix it: « Nous avons fini pas le test. »",type:"text",ans:["nous n'avons pas fini le test","nous navons pas fini le test"]},
+  {prompt:"Fix it: « Le film est amusante. »",type:"text",ans:["le film est amusant"]},
+  {prompt:"Fix it: « J'ai manger une pomme. »",type:"text",ans:["j'ai mangé une pomme"]},
+  {prompt:"Fix it: « Elle choisi un livre. » (present)",type:"text",ans:["elle choisit un livre"]},
+  {prompt:"Fix it: « Nous sommes allé à l'école. » (masc. plural)",type:"text",ans:["nous sommes allés à l'école","nous sommes allés à lécole"]},
+  {prompt:"Fix it: « Je irai à Paris. »",type:"text",ans:["j'irai à paris","jirai à paris"]},
+  {prompt:"Fix it: « Une voiture belle rouge. » (BANGS placement)",type:"text",ans:["une belle voiture rouge"]},
+  {prompt:"Fix it: « Il ne mange. » (missing word)",type:"text",ans:["il ne mange pas"]},
+ ],
+ adj:[
+  {prompt:"« grand » → feminine singular: une maison ___",type:"text",ans:["grande"]},
+  {prompt:"« grand » → masculine plural: des chiens ___",type:"text",ans:["grands"]},
+  {prompt:"« intelligent » → feminine plural: des filles ___",type:"text",ans:["intelligentes"]},
+  {prompt:"« petit » → feminine singular: une ___ table",type:"text",ans:["petite"]},
+  {prompt:"« petit » → feminine plural: des ___ tables",type:"text",ans:["petites"]},
+  {prompt:"« intelligent » → masculine singular: un garçon ___",type:"text",ans:["intelligent"]},
+  {prompt:"Feminine singular of « beau »?",type:"choice",opts:["beau","belle","beaux","belles"],correct:1},
+  {prompt:"Feminine singular of « nouveau »?",type:"choice",opts:["nouvelle","nouveau","nouveaux","nouvelles"],correct:0},
+  {prompt:"Feminine singular of « vieux »?",type:"choice",opts:["vieux","vieil","vieille","vieilles"],correct:2},
+  {prompt:"Masculine plural of « beau »?",type:"choice",opts:["belle","beaux","belles","beau"],correct:1},
+  {prompt:"To make most adjectives feminine you add…",type:"choice",opts:["-s","-e","-es","nothing"],correct:1},
+  {prompt:"To make a masculine adjective plural you add…",type:"choice",opts:["-e","-s","-es","nothing"],correct:1},
+  {prompt:"BANGS adjectives go ___ the noun.",type:"choice",opts:["after","before","never with","under"],correct:1},
+  {prompt:"Which is a BANGS adjective (goes before)?",type:"choice",opts:["rouge","grand","intelligent","délicieux"],correct:1},
+  {prompt:"What does BANGS stand for?",type:"choice",opts:["Beauty, Age, Number, Goodness, Size","Big, Angry, New, Good, Small","Beauty, Age, Name, Goodness, Speed","Best, Age, Number, Great, Size"],correct:0},
+  {prompt:"Place it: « voiture » + « belle » → « une ___ »",type:"text",ans:["belle voiture"]},
+  {prompt:"Place it: « voiture » + « rouge » → « une ___ »",type:"text",ans:["voiture rouge"]},
+  {prompt:"« un ___ chien » (grand)",type:"text",ans:["grand"]},
+  {prompt:"« une ___ fille » (beau)",type:"text",ans:["belle"]},
+  {prompt:"« des ___ maisons » (nouveau)",type:"text",ans:["nouvelles"]},
+  {prompt:"« Elle a une ___ voiture. » (vieux)",type:"text",ans:["vieille"]},
+ ],
+ neg:[
+  {prompt:"Make negative (present): « Je parle italien. »",type:"text",ans:["je ne parle pas italien"]},
+  {prompt:"Make negative (present): « Elle se brosse les dents. »",type:"text",ans:["elle ne se brosse pas les dents"]},
+  {prompt:"Make negative (present): « Tu danses. »",type:"text",ans:["tu ne danses pas"]},
+  {prompt:"Make negative (present): « Il mange. »",type:"text",ans:["il ne mange pas"]},
+  {prompt:"Make negative (passé composé): « J'ai parlé italien. »",type:"text",ans:["je n'ai pas parlé italien","je nai pas parlé italien"]},
+  {prompt:"Make negative (passé composé): « Nous avons fini. »",type:"text",ans:["nous n'avons pas fini","nous navons pas fini"]},
+  {prompt:"Make negative (futur): « Je parlerai à l'école. »",type:"text",ans:["je ne parlerai pas à l'école","je ne parlerai pas à lécole"]},
+  {prompt:"Make negative (reflexive): « Je me lève. »",type:"text",ans:["je ne me lève pas"]},
+  {prompt:"In the PAST tense, ne…pas wrap around the…",type:"choice",opts:["past participle","helper verb","subject","adjective"],correct:1},
+  {prompt:"NE goes ___ the verb.",type:"choice",opts:["after","in front of","under","instead of"],correct:1},
+  {prompt:"PAS goes ___ the verb.",type:"choice",opts:["before","after","under","instead of"],correct:1},
+  {prompt:"Why « n'ai » and not « ne ai »?",type:"choice",opts:["ne drops before a vowel (n')","it's a typo","pas changes to n'","être requires it"],correct:0},
+  {prompt:"« à + le » becomes…",type:"choice",opts:["à la","au","aux","du"],correct:1},
+  {prompt:"« à + les » becomes…",type:"choice",opts:["au","à la","aux","des"],correct:2},
+  {prompt:"« de + le » becomes…",type:"choice",opts:["du","des","de la","au"],correct:0},
+  {prompt:"« de + les » becomes…",type:"choice",opts:["du","des","de la","aux"],correct:1},
+  {prompt:"« à + la » becomes… (careful!)",type:"choice",opts:["au","à la (no change)","aux","du"],correct:1},
+  {prompt:"Contract: « Il va à+le parc. » → « Il va ___ parc. »",type:"text",ans:["au"]},
+  {prompt:"Contract: « Il va à+les magasins. » → « Il va ___ magasins. »",type:"text",ans:["aux"]},
+  {prompt:"Contract: « Elle retourne de+le supermarché. » → « ... ___ supermarché. »",type:"text",ans:["du"]},
+  {prompt:"Contract: « Elle retourne de+les magasins. » → « ... ___ magasins. »",type:"text",ans:["des"]},
+ ],
+ listen:[
+  {say:"Je m'appelle Léa.",type:"choice",opts:["My name is Léa.","I am tired.","I have a dog.","I am hungry."],correct:0},
+  {say:"J'ai mangé une pizza.",type:"choice",opts:["I will eat a pizza.","I ate a pizza.","I eat pizza.","I like pizza."],correct:1},
+  {say:"Nous irons au cinéma.",type:"choice",opts:["We went to the cinema.","We are at the cinema.","We will go to the cinema.","We like the cinema."],correct:2},
+  {say:"Elle ne parle pas anglais.",type:"choice",opts:["She speaks English.","She will speak English.","She spoke English.","She does not speak English."],correct:3},
+  {say:"Je me brosse les dents.",type:"choice",opts:["I brush my teeth.","I wash my hands.","I comb my hair.","I get up."],correct:0},
+  {say:"Le film est amusant.",type:"choice",opts:["The film is boring.","The film is funny/fun.","The film is long.","The film is sad."],correct:1},
+  {say:"Tu as choisi un bon livre.",type:"choice",opts:["You will choose a book.","You are reading a book.","You chose a good book.","You sell books."],correct:2},
+  {say:"Ils sont allés à l'école.",type:"choice",opts:["They go to school.","They went to school.","They will go to school.","They like school."],correct:1},
+  {say:"Demain, je ferai mes devoirs.",type:"choice",opts:["I did my homework.","I am doing my homework.","Tomorrow I will do my homework.","I never do homework."],correct:2},
+  {say:"La glace est sucrée et délicieuse.",type:"choice",opts:["The ice cream is sour.","The ice cream is sweet and delicious.","The ice cream is salty.","The ice cream is frozen."],correct:1},
+  {say:"Je suis allé au parc.",type:"choice",opts:["I go to the park.","I will go to the park.","I went to the park.","I am at the park."],correct:2},
+  {say:"Nous mangeons une salade.",type:"choice",opts:["We ate a salad.","We are eating a salad.","We will eat a salad.","We like salad."],correct:1},
+  {say:"Tu as fini tes devoirs.",type:"choice",opts:["You will finish your homework.","You are finishing your homework.","You finished your homework.","You start your homework."],correct:2},
+  {say:"Elle ne mange pas de viande.",type:"choice",opts:["She eats meat.","She doesn't eat meat.","She will eat meat.","She loves meat."],correct:1},
+  {say:"Je veux un chocolat chaud.",type:"choice",opts:["I want a hot chocolate.","I have a hot chocolate.","I made a hot chocolate.","I like cold chocolate."],correct:0},
+  {say:"Ils joueront au foot demain.",type:"choice",opts:["They played soccer.","They are playing soccer.","They will play soccer tomorrow.","They watch soccer."],correct:2},
+  {say:"Mon chien est petit et mignon.",type:"choice",opts:["My dog is big and mean.","My dog is small and cute.","My cat is small.","My dog is old."],correct:1},
+  {say:"Le gâteau est très sucré.",type:"choice",opts:["The cake is very sweet.","The cake is very salty.","The cake is very spicy.","The cake is bitter."],correct:0},
+  {say:"Vous êtes très gentils.",type:"choice",opts:["You are very tall.","You are very kind.","You are very tired.","You are very fast."],correct:1},
+  {say:"J'irai à la plage cet été.",type:"choice",opts:["I went to the beach.","I am at the beach.","I will go to the beach this summer.","I like the beach."],correct:2},
+ ],
+ read:[
+  {prompt:"[Texte A] What did Léa eat last weekend?",type:"choice",opts:["A salad","A delicious pizza","Popcorn","Nothing"],correct:1},
+  {prompt:"[Texte A] Did Léa like the movie?",type:"choice",opts:["Yes","No","She didn't watch it","It doesn't say"],correct:1},
+  {prompt:"[Texte A] What will Léa do tomorrow?",type:"choice",opts:["Stay home","Go to the cinema","Cook dinner","Visit grandma"],correct:1},
+  {prompt:"[Texte A] « j'irai » and « nous mangerons » are in which tense?",type:"choice",opts:["présent","passé composé","futur simple","reflexive"],correct:2},
+  {prompt:"[Texte A] Type ONE adjective from the text:",type:"text",ans:["délicieuse","amusant","salé"]},
+  {prompt:"[Texte A] Who watched the film?",type:"choice",opts:["Léa","Her brother","Her mom","Her friends"],correct:1},
+  {prompt:"[Texte B] What sport does Marc play?",type:"choice",opts:["Hockey","Soccer (football)","Basketball","Tennis"],correct:1},
+  {prompt:"[Texte B] When does Marc get up on Saturdays?",type:"choice",opts:["At 6am","At 7am","At 8am","At 9am"],correct:2},
+  {prompt:"[Texte B] What did Marc do last Saturday?",type:"choice",opts:["Stayed home","Went to his friend's house","Went to the park","Travelled"],correct:1},
+  {prompt:"[Texte B] « je me lève » is what kind of verb?",type:"choice",opts:["reflexive","irregular -RE","BANGS","future"],correct:0},
+  {prompt:"[Texte B] What will Marc become later?",type:"choice",opts:["A doctor","A teacher","A chef","A pilot"],correct:1},
+  {prompt:"[Texte B] Why does Marc want that job? (« car… »)",type:"choice",opts:["He loves money","He loves children","He loves sports","He loves food"],correct:1},
+  {prompt:"[Texte C] What cuisine does Sophie love?",type:"choice",opts:["French","Italian","Mexican","Japanese"],correct:1},
+  {prompt:"[Texte C] What is Sophie's favourite dish?",type:"choice",opts:["Pasta","Salad","Pizza","Soup"],correct:2},
+  {prompt:"[Texte C] What did Sophie's mother prepare last night?",type:"choice",opts:["A pizza","A fresh salad","Pasta","A cake"],correct:1},
+  {prompt:"[Texte C] What will Sophie do this weekend?",type:"choice",opts:["Cook at home","Go to a restaurant","Visit Italy","Stay in bed"],correct:1},
+  {prompt:"[Texte C] Why are they going out this weekend?",type:"choice",opts:["A birthday","A wedding","A holiday","A game"],correct:0},
+  {prompt:"[Texte C] « nous irons » is in which tense?",type:"choice",opts:["présent","passé composé","futur simple","reflexive"],correct:2},
+  {prompt:"[Texte C] « a préparé » is in which tense?",type:"choice",opts:["présent","passé composé","futur simple","reflexive"],correct:1},
+  {prompt:"[All texts] Which word means « delicious »?",type:"choice",opts:["fraîche","délicieuse","amusant","salé"],correct:1},
+ ],
+};
+
+/* tab definitions: id, label, icon, hint, special(reading) */
+const TABDEF=[
+ ["present","Présent","⚔","Type the correct <b>present-tense</b> form. Families: <b>-ER</b> (parle…), <b>-IR</b> (finis…), <b>-RE</b> (vends…). Irregulars: être, aller, avoir, faire, vouloir, pouvoir."],
+ ["passe","Passé composé","🕰","<b>Past tense:</b> subject + helper (usually <b>avoir</b>) + past participle. -ER→é, -IR→i, -RE→u. Write the full sentence where asked."],
+ ["futur","Futur simple","🚀","<b>Future:</b> verb name + endings (-ai, -as, -a, -ons, -ez, -ont). Irregular stems: aller→ir-, faire→fer-, être→ser-, avoir→aur-, pouvoir→pourr-."],
+ ["vander","Dr Mrs Vandertramp","🚪","The <b>16 être verbs</b> use ÊTRE as helper. Add <b>-e</b> (female), <b>-s</b> (plural), <b>-es</b> (female plural) to the participle."],
+ ["match","Matching","🔗","Match each French word to its English meaning using the drop-down menus."],
+ ["fix","Fix the Sentence","🛠","Each sentence has <b>one</b> mistake (conjugation, agreement, negation, contraction, accent, or word order). Rewrite it correctly. Use the accent buttons!"],
+ ["adj","Adjectives & BANGS","✏","Make adjectives <b>agree</b>: +e (fem.), +s (masc. pl.), +es (fem. pl.). BANGS adjectives (Beauty, Age, Number, Goodness, Size) go <b>before</b> the noun."],
+ ["neg","Negation & Contractions","🚫","<b>ne … pas</b> wrap the verb (or the helper verb in the past). à+le=au, à+les=aux, de+le=du, de+les=des."],
+ ["listen","Listening","🎧","Press <b>▶ ÉCOUTER</b> to hear a French phrase (offline, no internet), then choose what you heard. Replay as often as you like."],
+ ["read","Reading","📖","Read all three short texts, then answer. You can hear each one read aloud.","reading"],
+];
+
+/* build tabs + panels */
+const tabsEl=document.getElementById("tabs"), panelsEl=document.getElementById("panels");
+const matchPools={};
+TABDEF.forEach(([key,label,icon,hint,special],idx)=>{
+  const b=document.createElement("button");b.textContent=icon+" "+label;b.onclick=()=>showTab("p-"+key,b);if(idx===0)b.classList.add("active");tabsEl.appendChild(b);
+  const sec=document.createElement("section");sec.className="panel"+(idx===0?" active":"");sec.id="p-"+key;
+  let head="<h2><span class='tag'>"+icon+"</span> "+label+"</h2><div class='count'>"+SETS[key].length+" questions</div><div class='hint'>"+hint+"</div>";
+  if(special==="reading"){
+    head+="<div class='passlabel'>TEXTE A — Léa</div><div class='reading'><i>"+READING_A+"</i></div><button class='speak' style='margin:10px 0;' onclick=\"speak(READING_A)\">▶ Écouter le texte A</button>"
+        +"<div class='passlabel'>TEXTE B — Marc</div><div class='reading'><i>"+READING_B+"</i></div><button class='speak' style='margin:10px 0;' onclick=\"speak(READING_B)\">▶ Écouter le texte B</button>"
+        +"<div class='passlabel'>TEXTE C — Sophie</div><div class='reading'><i>"+READING_C+"</i></div><button class='speak' style='margin:10px 0;' onclick=\"speak(READING_C)\">▶ Écouter le texte C</button>";
+  }
+  head+="<div id='"+key+"Qs' style='margin-top:8px;'></div>"
+      +"<button class='action' onclick=\"checkSet('"+key+"')\">Check answers</button>"
+      +"<div class='scorebox' id='"+key+"-score'>Score: —</div>";
+  sec.innerHTML=head;panelsEl.appendChild(sec);
+});
+function showTab(id,btn){document.querySelectorAll("section.panel").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active");document.querySelectorAll("nav.tabs button").forEach(x=>x.classList.remove("active"));btn.classList.add("active");}
+
+/* accent insertion */
+let lastField=null;
+document.addEventListener("focusin",e=>{if(e.target.matches("input.fr,textarea.fr"))lastField=e.target;});
+document.querySelectorAll("#accentBar button").forEach(btn=>{
+  btn.addEventListener("click",()=>{const ch=btn.getAttribute("data-ch");if(!lastField)return;
+    const s=lastField.selectionStart??lastField.value.length,e=lastField.selectionEnd??lastField.value.length;
+    lastField.value=lastField.value.slice(0,s)+ch+lastField.value.slice(e);
+    lastField.focus();const p=s+ch.length;lastField.setSelectionRange(p,p);});
+});
+
+/* render each set */
+function render(setKey){
+  const box=document.getElementById(setKey+"Qs");box.innerHTML="";
+  if(setKey==="match"){matchPools[setKey]=shuffle(SETS[setKey].map(q=>q.ans[0]));}
+  SETS[setKey].forEach((item,i)=>{
+    const d=document.createElement("div");d.className="q";d.id=setKey+"-q"+i;
+    let html="";
+    if(item.type==="match"){
+      html="<div class='matchrow'><span class='fr-term'>"+(i+1)+". "+item.prompt+"</span>"
+         +"<select class='fr' style='max-width:260px'><option value=''>— choose meaning —</option>"
+         +matchPools[setKey].map(e=>"<option value=\""+e+"\">"+e+"</option>").join("")+"</select></div>";
+    } else {
+      html="<div class='prompt'>"+(i+1)+". "+(item.prompt||"Listen and choose what you hear:")+"</div>";
+      if(item.say){html+="<button class='speak' type='button' onclick=\"speak('"+item.say.replace(/'/g,"\\'")+"')\">▶ Écouter</button><div class='sub'>(press to replay)</div>";}
+      if(item.type==="text"){
+        html+="<input class='fr' type='text' autocomplete='off' spellcheck='false' placeholder='Réponse…'>";
+      } else {
+        html+="<div>"+item.opts.map((o,j)=>"<label><input type='radio' name='"+setKey+i+"' value='"+j+"'> "+o+"</label>").join("")+"</div>";
+      }
+    }
+    html+="<div class='fb'></div>";
+    d.innerHTML=html;box.appendChild(d);
+  });
+}
+Object.keys(SETS).forEach(render);
+
+if(!("speechSynthesis"in window)){
+  ["listen","read"].forEach(k=>{const sc=document.getElementById(k+"-score");if(sc)sc.insertAdjacentHTML("beforebegin","<div style='color:var(--red);font-weight:bold;margin:10px 0;'>⚠ Listening works best in Chrome or Edge.</div>");});
+}
+
+/* checking */
+function checkSet(setKey){
+  const items=SETS[setKey];let correct=0;
+  items.forEach((item,i)=>{
+    const d=document.getElementById(setKey+"-q"+i),fb=d.querySelector(".fb");
+    d.classList.remove("correct","wrong");let ok=false;
+    if(item.type==="text"){
+      const val=norm(d.querySelector("input.fr").value);
+      ok=item.ans.some(a=>norm(a)===val);
+      fb.textContent=ok?"✓ Parfait!":"✗ Réponse: "+item.ans[0];
+    } else if(item.type==="match"){
+      const val=norm(d.querySelector("select").value);
+      ok=norm(item.ans[0])===val;
+      fb.textContent=ok?"✓ Correct!":"✗ "+item.prompt+" = "+item.ans[0];
+    } else {
+      const sel=d.querySelector("input[type=radio]:checked");
+      const chosen=sel?parseInt(sel.value):-1;ok=chosen===item.correct;
+      fb.textContent=ok?"✓ Correct!":"✗ Correct: "+item.opts[item.correct];
+    }
+    fb.className="fb "+(ok?"ok":"no");
+    d.classList.add(ok?"correct":"wrong");
+    if(ok)correct++;
+  });
+  const sb=document.getElementById(setKey+"-score");
+  const pct=Math.round(correct/items.length*100);
+  let emoji=pct===100?"🏆 PARFAIT!":pct>=80?"🔥 Super!":pct>=50?"💪 Continue!":"📚 Révise encore!";
+  sb.innerHTML="Score: "+correct+" / "+items.length+" ("+pct+"%) <span class='pill'>"+emoji+"</span>";
+  sb.scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+</script>
+</body>
+</html>

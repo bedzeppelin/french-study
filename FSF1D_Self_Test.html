@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FSF1D - Self-Marking Test</title>
+<style>
+  :root{--bg:#0b0b0d;--panel:#15151a;--panel2:#1b1b21;--line:#2a2a32;--ink:#f3f3f5;--muted:#9a9aa6;--red:#ff2e3f;--red-soft:#3a1115;--gold:#ffd23f;--gold-soft:#332b0f;}
+  *{box-sizing:border-box;}
+  body{margin:0;color:var(--ink);background:var(--bg);font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;min-height:100vh;background-image:radial-gradient(circle at 12% -10%,#1a1a22 0%,transparent 45%);}
+  .lovelo{font-family:"Arial Black",Impact,"Trebuchet MS",sans-serif;text-transform:uppercase;letter-spacing:3px;font-weight:900;}
+  header{text-align:center;padding:32px 14px 6px;}
+  header h1{margin:0;color:var(--ink);font-size:clamp(26px,6vw,46px);}
+  header h1 .dot{color:var(--red);}
+  header p{color:var(--gold);font-weight:bold;margin:8px 0 0;letter-spacing:2px;font-size:13px;}
+  .rule{height:3px;width:90px;margin:14px auto 0;background:linear-gradient(90deg,var(--red),var(--gold));}
+  .wrap{max-width:860px;margin:0 auto;padding:0 14px 70px;}
+  #accentBar{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:6px;background:rgba(10,10,12,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px;border-radius:0 0 12px 12px;margin-bottom:14px;}
+  #accentBar .lbl{color:var(--gold);font-weight:bold;align-self:center;font-size:13px;margin-right:4px;letter-spacing:1px;}
+  #accentBar button{min-width:38px;height:38px;border:1px solid var(--line);border-radius:8px;cursor:pointer;font-size:18px;font-weight:bold;background:var(--panel2);color:var(--ink);transition:.12s;}
+  #accentBar button:hover{background:var(--gold);color:#000;border-color:var(--gold);}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px;box-shadow:0 18px 50px rgba(0,0,0,.5);}
+  .meta{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:14px;}
+  .meta input{font-size:15px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;font-family:inherit;background:#0e0e12;color:var(--ink);}
+  .intro{color:var(--muted);margin-top:0;line-height:1.55;}
+  .intro b{color:var(--gold);}
+  .q{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:12px 0;transition:.15s;}
+  .q .prompt{font-weight:bold;margin-bottom:8px;line-height:1.5;}
+  .q label{display:block;margin:5px 0;cursor:pointer;color:#dcdce2;}
+  .q label:hover{color:var(--ink);}
+  input.fr{font-size:16px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;font-family:inherit;width:100%;max-width:400px;background:#0e0e12;color:var(--ink);}
+  input.fr:focus{outline:none;border-color:var(--gold);}
+  .q.correct{border-color:var(--gold);background:var(--gold-soft);}
+  .q.wrong{border-color:var(--red);background:var(--red-soft);}
+  .fb{margin-top:8px;font-weight:bold;font-size:14px;}
+  .fb.ok{color:var(--gold);} .fb.no{color:var(--red);}
+  .confirm{margin:22px 0;padding:15px;border-radius:12px;background:var(--gold-soft);border:1px solid var(--gold);font-weight:bold;display:flex;gap:11px;align-items:flex-start;color:var(--ink);}
+  .confirm input{transform:scale(1.5);margin-top:3px;accent-color:var(--red);}
+  button.submit{font-family:"Arial Black",sans-serif;text-transform:uppercase;letter-spacing:1px;border:none;border-radius:11px;cursor:pointer;padding:15px 22px;color:#fff;font-size:16px;width:100%;background:var(--red);box-shadow:0 5px 0 #7a0c14;transition:.12s;}
+  button.submit:hover{filter:brightness(1.08);}
+  button.submit:active{transform:translateY(4px);box-shadow:0 1px 0 #7a0c14;}
+  button.submit:disabled{filter:grayscale(.8);opacity:.5;cursor:not-allowed;box-shadow:0 5px 0 #333;}
+  #result{display:none;margin-top:22px;text-align:center;padding:24px;border-radius:14px;background:var(--panel2);border:1px solid var(--line);}
+  #result .big{font-family:"Arial Black",sans-serif;font-size:46px;color:var(--gold);}
+  #result .msg{font-weight:bold;font-size:19px;margin-top:6px;}
+  #result .sub{color:var(--muted);margin-top:10px;font-weight:bold;}
+  .retry{margin-top:16px;background:transparent;border:1px solid var(--gold);color:var(--gold);border-radius:9px;padding:11px 18px;font-family:"Arial Black",sans-serif;cursor:pointer;letter-spacing:1px;}
+  .retry:hover{background:var(--gold);color:#000;}
+  footer{text-align:center;color:var(--muted);font-size:13px;padding:20px;}
+  footer .accentline{height:2px;width:60px;background:linear-gradient(90deg,var(--red),var(--gold));margin:0 auto 12px;}
+</style>
+</head>
+<body>
+<header>
+  <h1 class="lovelo">Test Final<span class="dot">.</span></h1>
+  <p class="lovelo">FSF1D - Self-Marking Test - Grade 9 Core French</p>
+  <div class="rule"></div>
+</header>
+<div class="wrap">
+  <div id="accentBar">
+    <span class="lbl">ACCENTS</span>
+    <button data-ch="é">é</button><button data-ch="è">è</button><button data-ch="ê">ê</button>
+    <button data-ch="à">à</button><button data-ch="â">â</button><button data-ch="î">î</button>
+    <button data-ch="ô">ô</button><button data-ch="û">û</button><button data-ch="ù">ù</button>
+    <button data-ch="ç">ç</button><button data-ch="ë">ë</button><button data-ch="ï">ï</button>
+  </div>
+  <div class="card">
+    <div class="meta">
+      <input id="sName" type="text" placeholder="Your name / Ton nom">
+      <input id="sDate" type="text" placeholder="Date">
+    </div>
+    <p class="intro">Answer all questions. Use the accent buttons above for the typed answers. When you're done, check the box and submit - the test marks itself instantly. <b>These are brand-new questions (not the Kahoot ones).</b></p>
+    <form id="quiz"></form>
+    <div class="confirm">
+      <input type="checkbox" id="confirmBox">
+      <label for="confirmBox">I have double-checked all my answers and I'm ready to submit.</label>
+    </div>
+    <button class="submit" id="submitBtn" disabled>Submit and Mark My Test</button>
+    <div id="result">
+      <div class="big" id="scoreBig"></div>
+      <div class="msg" id="scoreMsg"></div>
+      <div class="sub" id="breakdown"></div>
+      <button class="retry" onclick="location.reload()">Try again</button>
+    </div>
+  </div>
+</div>
+<footer><div class="accentline"></div>Works entirely in your browser - no internet or backend needed. Bonne chance!</footer>
+<script>
+const QUESTIONS=[
+  {prompt:"Présent - « Vous ___ (parler) à la classe. »",type:"choice",opts:["parle","parles","parlez","parlent"],correct:2},
+  {prompt:"Présent - « Elles ___ (choisir) un film. »",type:"choice",opts:["choisis","choisit","choisissez","choisissent"],correct:3},
+  {prompt:"Présent - « Tu ___ (vendre) ton vélo. »",type:"text",ans:["vends"]},
+  {prompt:"Conjugate être - « Nous ___. »",type:"choice",opts:["suis","es","sommes","sont"],correct:2},
+  {prompt:"Conjugate avoir - « Vous ___. »",type:"choice",opts:["ai","as","avez","ont"],correct:2},
+  {prompt:"Conjugate aller (présent) - « Elle ___. »",type:"text",ans:["va"]},
+  {prompt:"Conjugate faire (présent) - « Je ___. »",type:"choice",opts:["fais","fait","faisons","font"],correct:0},
+  {prompt:"Past participle of « regarder »?",type:"choice",opts:["regardu","regardé","regardi","regarder"],correct:1},
+  {prompt:"Past participle of « répondre »?",type:"choice",opts:["répondé","répondi","répondu","répondre"],correct:2},
+  {prompt:"Passé composé - write fully: « Tu (manger) une pomme. »",type:"text",ans:["tu as mangé une pomme"]},
+  {prompt:"Être verb - « Elle est ___ » (venir, female subject).",type:"choice",opts:["venu","venue","venus","venues"],correct:1},
+  {prompt:"Futur simple - the special stem of « faire » is:",type:"choice",opts:["fais-","far-","fer-","faire-"],correct:2},
+  {prompt:"Futur simple - write fully: « tu (parler) »",type:"text",ans:["tu parleras","parleras"]},
+  {prompt:"Futur simple - « Ils ___ (danser) demain. »",type:"choice",opts:["danseront","danserons","danserez","dansera"],correct:0},
+  {prompt:"Adjective - feminine plural of « petit »?",type:"choice",opts:["petits","petite","petites","petit"],correct:2},
+  {prompt:"BANGS - where does « grand » go relative to the noun?",type:"choice",opts:["after the noun","before the noun","never used","after the verb"],correct:1},
+  {prompt:"Contraction - « de + le » becomes:",type:"choice",opts:["du","au","des","de la"],correct:0},
+  {prompt:"Which negative FUTURE sentence is correct?",type:"choice",opts:["Je parlerai ne pas","Je ne parlerai pas","Ne je parlerai pas","Je parlerai pas ne"],correct:1},
+  {prompt:"Reflexive - « Nous ___ brossons les dents. »",type:"text",ans:["nous"]},
+  {prompt:"Vocabulary - « salé » means:",type:"choice",opts:["sweet","salty","spicy","sour"],correct:1},
+];
+function norm(s){return (s||"").trim().toLowerCase().replace(/\s+/g," ").replace(/[.!?]+$/,"").replace(/’/g,"'");}
+const form=document.getElementById("quiz");
+QUESTIONS.forEach(function(q,i){
+  var d=document.createElement("div");d.className="q";d.id="q"+i;
+  var html="<div class='prompt'>"+(i+1)+". "+q.prompt+"</div>";
+  if(q.type==="text"){html+="<input class='fr' type='text' autocomplete='off' spellcheck='false' placeholder='Réponse...'>";}
+  else{html+=q.opts.map(function(o,j){return "<label><input type='radio' name='q"+i+"' value='"+j+"'> "+o+"</label>";}).join("");}
+  html+="<div class='fb'></div>";
+  d.innerHTML=html;form.appendChild(d);
+});
+var lastField=null;
+document.addEventListener("focusin",function(e){if(e.target.matches("input.fr"))lastField=e.target;});
+document.querySelectorAll("#accentBar button").forEach(function(b){
+  b.addEventListener("click",function(){var ch=b.getAttribute("data-ch");if(!lastField)return;
+    var s=lastField.selectionStart,e=lastField.selectionEnd;
+    lastField.value=lastField.value.slice(0,s)+ch+lastField.value.slice(e);
+    lastField.focus();lastField.setSelectionRange(s+1,s+1);});
+});
+var box=document.getElementById("confirmBox"),btn=document.getElementById("submitBtn");
+box.addEventListener("change",function(){btn.disabled=!box.checked;});
+btn.addEventListener("click",function(){
+  if(!box.checked){alert("Please check the box to confirm you've double-checked your answers.");return;}
+  var correct=0;
+  QUESTIONS.forEach(function(q,i){
+    var d=document.getElementById("q"+i),fb=d.querySelector(".fb");
+    d.classList.remove("correct","wrong");var ok=false;
+    if(q.type==="text"){var val=norm(d.querySelector("input.fr").value);ok=q.ans.some(function(a){return norm(a)===val;});fb.textContent=ok?"Correct!":"Answer: "+q.ans[0];}
+    else{var sel=d.querySelector("input[type=radio]:checked");ok=sel&&parseInt(sel.value)===q.correct;fb.textContent=ok?"Correct!":"Answer: "+q.opts[q.correct];}
+    fb.className="fb "+(ok?"ok":"no");d.classList.add(ok?"correct":"wrong");if(ok)correct++;
+  });
+  var total=QUESTIONS.length,pct=Math.round(correct/total*100);
+  document.getElementById("scoreBig").textContent=correct+" / "+total;
+  var name=document.getElementById("sName").value.trim();
+  var msg=pct===100?"PARFAIT! Perfect score!":pct>=80?"Excellent work!":pct>=60?"Good - keep reviewing!":"Keep studying - you've got this!";
+  document.getElementById("scoreMsg").textContent=(name?name+", ":"")+msg;
+  document.getElementById("breakdown").textContent="That's "+pct+"%. Scroll up to see correct/incorrect on each question.";
+  document.getElementById("result").style.display="block";
+  btn.disabled=true;box.disabled=true;
+  document.getElementById("result").scrollIntoView({behavior:"smooth"});
+});
+</script>
+</body>
+</html>
