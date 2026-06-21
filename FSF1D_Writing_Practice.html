@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FSF1D - Writing Practice</title>
+<style>
+  :root{--bg:#0b0b0d;--panel:#15151a;--panel2:#1b1b21;--line:#2a2a32;--ink:#f3f3f5;--muted:#9a9aa6;--red:#ff2e3f;--red-soft:#3a1115;--gold:#ffd23f;--gold-soft:#332b0f;}
+  *{box-sizing:border-box;}
+  body{margin:0;color:var(--ink);background:var(--bg);font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;min-height:100vh;background-image:radial-gradient(circle at 12% -10%,#1a1a22 0%,transparent 45%);}
+  .lovelo{font-family:"Arial Black",Impact,"Trebuchet MS",sans-serif;text-transform:uppercase;letter-spacing:3px;font-weight:900;}
+  header{text-align:center;padding:32px 14px 6px;}
+  header h1{margin:0;color:var(--ink);font-size:clamp(26px,6vw,48px);}
+  header h1 .dot{color:var(--red);}
+  header p{color:var(--gold);font-weight:bold;margin:8px 0 0;letter-spacing:2px;font-size:13px;}
+  .rule{height:3px;width:90px;margin:14px auto 0;background:linear-gradient(90deg,var(--red),var(--gold));}
+  .wrap{max-width:940px;margin:0 auto;padding:0 14px 70px;}
+  #accentBar{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:6px;background:rgba(10,10,12,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px;border-radius:0 0 12px 12px;margin-bottom:14px;}
+  #accentBar .lbl{color:var(--gold);font-weight:bold;align-self:center;font-size:13px;margin-right:4px;letter-spacing:1px;}
+  #accentBar button{min-width:38px;height:38px;border:1px solid var(--line);border-radius:8px;cursor:pointer;font-size:18px;font-weight:bold;background:var(--panel2);color:var(--ink);transition:.12s;}
+  #accentBar button:hover{background:var(--gold);color:#000;border-color:var(--gold);}
+  nav.tabs{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:20px 0;}
+  nav.tabs button{font-family:"Arial Black",sans-serif;text-transform:uppercase;letter-spacing:1px;border:1px solid var(--line);background:var(--panel);color:var(--muted);cursor:pointer;padding:10px 13px;border-radius:10px;font-size:11.5px;transition:.15s;}
+  nav.tabs button:hover{color:var(--ink);border-color:var(--gold);}
+  nav.tabs button.active{background:var(--red);color:#fff;border-color:var(--red);}
+  section.panel{display:none;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px;box-shadow:0 18px 50px rgba(0,0,0,.5);}
+  section.panel.active{display:block;}
+  section.panel h2{margin:0 0 4px;font-size:23px;}
+  section.panel h2 .tag{color:var(--red);}
+  .count{color:var(--muted);font-size:13px;margin-bottom:12px;}
+  .hint{background:var(--panel2);border-left:3px solid var(--gold);padding:11px 14px;border-radius:8px;margin:0 0 18px;font-size:14.5px;color:#dcdce2;line-height:1.55;}
+  .hint b{color:var(--gold);}
+  .vtable{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:14px 0;}
+  .vtitle{font-family:"Arial Black",sans-serif;letter-spacing:1px;color:var(--gold);margin-bottom:4px;font-size:16px;}
+  .vnote{color:var(--muted);font-size:12.5px;margin-bottom:10px;}
+  .vrow{display:flex;align-items:center;gap:10px;margin:6px 0;flex-wrap:wrap;}
+  .vrow .subj{min-width:118px;font-weight:bold;color:#cdcdd6;}
+  .vrow input{font-size:16px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font-family:inherit;width:230px;background:#0e0e12;color:var(--ink);}
+  .vrow input:focus{outline:none;border-color:var(--gold);}
+  .vrow input.ok{border-color:var(--gold);background:var(--gold-soft);}
+  .vrow input.no{border-color:var(--red);background:var(--red-soft);}
+  .vrow .corr{font-size:13px;font-weight:bold;color:var(--red);}
+  .vrow .corr.good{color:var(--gold);}
+  button.action{font-family:"Arial Black",sans-serif;text-transform:uppercase;letter-spacing:1px;border:none;border-radius:10px;cursor:pointer;padding:13px 20px;color:#fff;font-size:14px;background:var(--red);box-shadow:0 4px 0 #7a0c14;transition:.12s;margin-right:8px;}
+  button.action:hover{filter:brightness(1.08);}
+  button.action:active{transform:translateY(4px);box-shadow:0 0 0 #7a0c14;}
+  button.ghost{background:transparent;border:1px solid var(--line);color:var(--muted);box-shadow:none;}
+  button.ghost:hover{border-color:var(--gold);color:var(--gold);}
+  .scorebox{margin-top:16px;font-family:"Arial Black",sans-serif;font-size:17px;text-align:center;padding:13px;border-radius:10px;background:var(--panel2);border:1px solid var(--line);color:var(--ink);}
+  .pill{display:inline-block;background:var(--gold);color:#000;border-radius:14px;padding:2px 11px;font-size:12px;font-weight:bold;margin-left:6px;}
+  footer{text-align:center;color:var(--muted);font-size:13px;padding:22px;}
+  footer .accentline{height:2px;width:60px;background:linear-gradient(90deg,var(--red),var(--gold));margin:0 auto 12px;}
+</style>
+</head>
+<body>
+<header>
+  <h1 class="lovelo">Writing Practice<span class="dot">.</span></h1>
+  <p class="lovelo">FSF1D - Conjugation Workout - Type Every Form</p>
+  <div class="rule"></div>
+</header>
+<div class="wrap">
+  <div id="accentBar">
+    <span class="lbl">ACCENTS</span>
+    <button data-ch="é">é</button><button data-ch="è">è</button><button data-ch="ê">ê</button>
+    <button data-ch="ë">ë</button><button data-ch="à">à</button><button data-ch="â">â</button>
+    <button data-ch="î">î</button><button data-ch="ï">ï</button><button data-ch="ô">ô</button>
+    <button data-ch="û">û</button><button data-ch="ù">ù</button><button data-ch="ç">ç</button>
+  </div>
+  <nav class="tabs" id="tabs"></nav>
+  <div id="panels"></div>
+</div>
+<footer><div class="accentline"></div>Tip: you can type the subject or not - both work. But spelling and accents must be correct! Runs 100% offline.</footer>
+<script>
+function norm(s){
+  s=(s||"").trim().toLowerCase().replace(/\s+/g," ").replace(/[.!?]+$/,"").replace(/’/g,"'");
+  s=s.replace(/^(j'|je |tu |ils |elles |il |elle |on |nous |vous )/,"");
+  return s.trim();
+}
+var SECTIONS=[
+ {key:"reg",label:"Présent: Réguliers",icon:"✍",
+  hint:"Write the full present tense of each <b>regular</b> verb. -ER (parle, parles, parlons...), -IR (finis, finit, finissons...), -RE (vends, vend, vendons...). Type just the verb form.",
+  tables:[
+   {verb:"parler (-ER) - to speak",rows:[["je / j'",["parle"]],["tu",["parles"]],["il / elle",["parle"]],["nous",["parlons"]],["vous",["parlez"]],["ils / elles",["parlent"]]]},
+   {verb:"manger (-ER) - to eat",rows:[["je / j'",["mange"]],["tu",["manges"]],["il / elle",["mange"]],["nous",["mangeons"]],["vous",["mangez"]],["ils / elles",["mangent"]]]},
+   {verb:"finir (-IR) - to finish",rows:[["je / j'",["finis"]],["tu",["finis"]],["il / elle",["finit"]],["nous",["finissons"]],["vous",["finissez"]],["ils / elles",["finissent"]]]},
+   {verb:"choisir (-IR) - to choose",rows:[["je / j'",["choisis"]],["tu",["choisis"]],["il / elle",["choisit"]],["nous",["choisissons"]],["vous",["choisissez"]],["ils / elles",["choisissent"]]]},
+   {verb:"vendre (-RE) - to sell",rows:[["je / j'",["vends"]],["tu",["vends"]],["il / elle",["vend"]],["nous",["vendons"]],["vous",["vendez"]],["ils / elles",["vendent"]]]},
+   {verb:"répondre (-RE) - to answer",rows:[["je / j'",["réponds"]],["tu",["réponds"]],["il / elle",["répond"]],["nous",["répondons"]],["vous",["répondez"]],["ils / elles",["répondent"]]]}
+  ]},
+ {key:"end",label:"Les terminaisons",icon:"🔤",
+  hint:"Write ONLY the <b>ending</b> you add for each subject. For the -RE « il/elle » form there is no ending - type <b>-</b> (a dash).",
+  tables:[
+   {verb:"-ER endings (parler, danser...)",rows:[["je",["e"]],["tu",["es"]],["il / elle",["e"]],["nous",["ons"]],["vous",["ez"]],["ils / elles",["ent"]]]},
+   {verb:"-IR endings (finir, choisir...)",rows:[["je",["is"]],["tu",["is"]],["il / elle",["it"]],["nous",["issons"]],["vous",["issez"]],["ils / elles",["issent"]]]},
+   {verb:"-RE endings (vendre, répondre...)",note:"Type - (dash) where there is no ending.",rows:[["je",["s"]],["tu",["s"]],["il / elle",["-","–","rien","aucune","aucun"]],["nous",["ons"]],["vous",["ez"]],["ils / elles",["ent"]]]}
+  ]},
+ {key:"irr",label:"Présent: Irréguliers",icon:"⚡",
+  hint:"The 6 irregulars you must memorize. Pay special attention to <b>être</b> - it does not follow any ending pattern!",
+  tables:[
+   {verb:"être - to be",rows:[["je",["suis"]],["tu",["es"]],["il / elle",["est"]],["nous",["sommes"]],["vous",["êtes"]],["ils / elles",["sont"]]]},
+   {verb:"avoir - to have",rows:[["je / j'",["ai"]],["tu",["as"]],["il / elle",["a"]],["nous",["avons"]],["vous",["avez"]],["ils / elles",["ont"]]]},
+   {verb:"aller - to go",rows:[["je",["vais"]],["tu",["vas"]],["il / elle",["va"]],["nous",["allons"]],["vous",["allez"]],["ils / elles",["vont"]]]},
+   {verb:"faire - to do/make",rows:[["je",["fais"]],["tu",["fais"]],["il / elle",["fait"]],["nous",["faisons"]],["vous",["faites"]],["ils / elles",["font"]]]},
+   {verb:"vouloir - to want",rows:[["je",["veux"]],["tu",["veux"]],["il / elle",["veut"]],["nous",["voulons"]],["vous",["voulez"]],["ils / elles",["veulent"]]]},
+   {verb:"pouvoir - to be able to",rows:[["je",["peux"]],["tu",["peux"]],["il / elle",["peut"]],["nous",["pouvons"]],["vous",["pouvez"]],["ils / elles",["peuvent"]]]}
+  ]},
+ {key:"pcav",label:"Passé composé: AVOIR",icon:"🕰",
+  hint:"Most verbs use <b>avoir</b> as the helper. Write helper + past participle (e.g. « ai mangé »). -ER→é, -IR→i, -RE→u. faire→fait.",
+  tables:[
+   {verb:"manger → (avoir + mangé)",rows:[["je / j'",["ai mangé"]],["tu",["as mangé"]],["il / elle",["a mangé"]],["nous",["avons mangé"]],["vous",["avez mangé"]],["ils / elles",["ont mangé"]]]},
+   {verb:"finir → (avoir + fini)",rows:[["je / j'",["ai fini"]],["tu",["as fini"]],["il / elle",["a fini"]],["nous",["avons fini"]],["vous",["avez fini"]],["ils / elles",["ont fini"]]]},
+   {verb:"vendre → (avoir + vendu)",rows:[["je / j'",["ai vendu"]],["tu",["as vendu"]],["il / elle",["a vendu"]],["nous",["avons vendu"]],["vous",["avez vendu"]],["ils / elles",["ont vendu"]]]},
+   {verb:"faire → (avoir + fait)",rows:[["je / j'",["ai fait"]],["tu",["as fait"]],["il / elle",["a fait"]],["nous",["avons fait"]],["vous",["avez fait"]],["ils / elles",["ont fait"]]]}
+  ]},
+ {key:"pcet",label:"Passé composé: ÊTRE",icon:"🚪",
+  hint:"The 16 « Dr Mrs Vandertramp » verbs use <b>être</b>. The participle must AGREE: add -e (female), -s (masc. plural), -es (female plural). The subject's gender is given - match it!",
+  tables:[
+   {verb:"aller → (être + allé)",rows:[["je (masculin)",["suis allé"]],["tu (féminin)",["es allée"]],["il",["est allé"]],["elle",["est allée"]],["nous (m. pluriel)",["sommes allés"]],["elles",["sont allées"]]]},
+   {verb:"arriver → (être + arrivé)",rows:[["je (masculin)",["suis arrivé"]],["tu (féminin)",["es arrivée"]],["il",["est arrivé"]],["elle",["est arrivée"]],["nous (m. pluriel)",["sommes arrivés"]],["elles",["sont arrivées"]]]},
+   {verb:"partir → (être + parti)",rows:[["je (masculin)",["suis parti"]],["tu (féminin)",["es partie"]],["il",["est parti"]],["elle",["est partie"]],["nous (m. pluriel)",["sommes partis"]],["elles",["sont parties"]]]},
+   {verb:"venir → (être + venu)",rows:[["je (masculin)",["suis venu"]],["tu (féminin)",["es venue"]],["il",["est venu"]],["elle",["est venue"]],["nous (m. pluriel)",["sommes venus"]],["elles",["sont venues"]]]}
+  ]}
+];
+
+var tabsEl=document.getElementById("tabs"),panelsEl=document.getElementById("panels");
+SECTIONS.forEach(function(sec,idx){
+  var b=document.createElement("button");b.textContent=sec.icon+" "+sec.label;b.onclick=function(){showTab("p-"+sec.key,b);};if(idx===0)b.classList.add("active");tabsEl.appendChild(b);
+  var blanks=sec.tables.reduce(function(a,t){return a+t.rows.length;},0);
+  var s=document.createElement("section");s.className="panel"+(idx===0?" active":"");s.id="p-"+sec.key;
+  var html="<h2><span class='tag'>"+sec.icon+"</span> "+sec.label+"</h2><div class='count'>"+blanks+" blanks to write</div><div class='hint'>"+sec.hint+"</div>";
+  sec.tables.forEach(function(t,ti){
+    html+="<div class='vtable'><div class='vtitle'>"+t.verb+"</div>";
+    if(t.note)html+="<div class='vnote'>"+t.note+"</div>";
+    t.rows.forEach(function(r,ri){
+      html+="<div class='vrow'><span class='subj'>"+r[0]+"</span><input type='text' autocomplete='off' spellcheck='false' data-s='"+sec.key+"' data-t='"+ti+"' data-r='"+ri+"' placeholder='...'><span class='corr' id='c-"+sec.key+"-"+ti+"-"+ri+"'></span></div>";
+    });
+    html+="</div>";
+  });
+  html+="<button class='action' onclick=\"checkSec('"+sec.key+"')\">Check answers</button>";
+  html+="<button class='ghost action' onclick=\"clearSec('"+sec.key+"')\">Clear</button>";
+  html+="<div class='scorebox' id='sc-"+sec.key+"'>Score: -</div>";
+  s.innerHTML=html;panelsEl.appendChild(s);
+});
+function showTab(id,btn){document.querySelectorAll("section.panel").forEach(function(s){s.classList.remove("active");});document.getElementById(id).classList.add("active");document.querySelectorAll("nav.tabs button").forEach(function(x){x.classList.remove("active");});btn.classList.add("active");}
+
+var lastField=null;
+document.addEventListener("focusin",function(e){if(e.target.matches(".vrow input"))lastField=e.target;});
+document.querySelectorAll("#accentBar button").forEach(function(btn){
+  btn.addEventListener("click",function(){var ch=btn.getAttribute("data-ch");if(!lastField)return;
+    var s=lastField.selectionStart,e=lastField.selectionEnd;
+    lastField.value=lastField.value.slice(0,s)+ch+lastField.value.slice(e);
+    lastField.focus();lastField.setSelectionRange(s+1,s+1);});
+});
+
+function secByKey(k){for(var i=0;i<SECTIONS.length;i++)if(SECTIONS[i].key===k)return SECTIONS[i];}
+function checkSec(key){
+  var sec=secByKey(key),correct=0,total=0;
+  sec.tables.forEach(function(t,ti){
+    t.rows.forEach(function(r,ri){
+      total++;
+      var inp=document.querySelector("input[data-s='"+key+"'][data-t='"+ti+"'][data-r='"+ri+"']");
+      var corr=document.getElementById("c-"+key+"-"+ti+"-"+ri);
+      var val=norm(inp.value);
+      var ok=r[1].some(function(a){return norm(a)===val;});
+      inp.classList.remove("ok","no");inp.classList.add(ok?"ok":"no");
+      if(ok){correct++;corr.textContent="✓";corr.className="corr good";}
+      else{corr.textContent="✗ "+r[1][0];corr.className="corr";}
+    });
+  });
+  var pct=Math.round(correct/total*100);
+  var emoji=pct===100?"🏆 PARFAIT!":pct>=80?"🔥 Super!":pct>=50?"💪 Continue!":"📚 Révise encore!";
+  var sb=document.getElementById("sc-"+key);
+  sb.innerHTML="Score: "+correct+" / "+total+" ("+pct+"%) <span class='pill'>"+emoji+"</span>";
+  sb.scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+function clearSec(key){
+  document.querySelectorAll("input[data-s='"+key+"']").forEach(function(inp){inp.value="";inp.classList.remove("ok","no");});
+  var sec=secByKey(key);
+  sec.tables.forEach(function(t,ti){t.rows.forEach(function(r,ri){var c=document.getElementById("c-"+key+"-"+ti+"-"+ri);if(c){c.textContent="";c.className="corr";}});});
+  document.getElementById("sc-"+key).innerHTML="Score: -";
+}
+</script>
+</body>
+</html>
